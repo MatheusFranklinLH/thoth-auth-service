@@ -15,5 +15,13 @@ namespace Thoth.Domain.Entities {
 				.Requires()
 				.IsNotNullOrEmpty(Name, "Name", "Organization name is required"));
 		}
+
+		public void Update(string name) {
+			Name = name;
+
+			AddNotifications(new Contract<Organization>()
+				.Requires()
+				.IsNotNullOrEmpty(Name, "Name", "Organization name is required"));
+		}
 	}
 }

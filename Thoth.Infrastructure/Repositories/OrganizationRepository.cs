@@ -21,5 +21,23 @@ namespace Thoth.Infrastructure.Repositories {
 								 .AsNoTracking()
 								 .FirstOrDefaultAsync(o => o.Name == name);
 		}
+		public async Task<List<Organization>> GetAllAsync() {
+			return await _context.Organizations.AsNoTracking().ToListAsync();
+		}
+
+		public async Task<Organization> GetByIdAsync(int id) {
+			return await _context.Organizations.FindAsync(id);
+		}
+
+		public async Task UpdateAsync(Organization organization) {
+			_context.Organizations.Update(organization);
+			await _context.SaveChangesAsync();
+		}
+
+		public async Task DeleteAsync(Organization organization) {
+			_context.Organizations.Remove(organization);
+			await _context.SaveChangesAsync();
+		}
+
 	}
 }

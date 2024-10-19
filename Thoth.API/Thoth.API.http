@@ -1,5 +1,7 @@
 @Thoth.API_HostAddress = http://localhost:5142
 
+GET {{Thoth.API_HostAddress}}/api/organizations
+
 POST {{Thoth.API_HostAddress}}/api/organizations
 Content-Type: application/json
 
@@ -7,10 +9,12 @@ Content-Type: application/json
   "name": "My Organization"
 }
 
-### (error)
-POST {{Thoth.API_HostAddress}}/api/organizations
+PUT {{Thoth.API_HostAddress}}/api/organizations
 Content-Type: application/json
 
 {
-  "name": ""
+  "id": 1,
+  "name": "Updated Organization Name"
 }
+
+DELETE {{Thoth.API_HostAddress}}/api/organizations/1
