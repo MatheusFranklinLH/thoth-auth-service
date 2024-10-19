@@ -1,6 +1,16 @@
 @Thoth.API_HostAddress = http://localhost:5142
 
-GET {{Thoth.API_HostAddress}}/weatherforecast/
-Accept: application/json
+POST {{Thoth.API_HostAddress}}/api/organizations
+Content-Type: application/json
 
-###
+{
+  "name": "My Organization"
+}
+
+### (error)
+POST {{Thoth.API_HostAddress}}/api/organizations
+Content-Type: application/json
+
+{
+  "name": ""
+}
