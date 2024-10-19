@@ -1,5 +1,10 @@
 using Microsoft.EntityFrameworkCore;
+using Thoth.Domain.Interfaces;
+using Thoth.Domain.Repositories;
+using Thoth.Domain.Services;
 using Thoth.Infrastructure.Context;
+using Thoth.Infrastructure.Repositories;
+using Thoth.Infrastructure.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,6 +14,10 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddControllers();
 builder.Services.AddDbContext<ThothDbContext>(options =>
 	options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddScoped<IOrganizationRepository, OrganizationRepository>();
+builder.Services.AddScoped<OrganizationService>();
+builder.Services.AddScoped<ILoggerService, LoggerService>();
 
 
 var app = builder.Build();
