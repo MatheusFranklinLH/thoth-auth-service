@@ -7,6 +7,9 @@ namespace Thoth.Infrastructure.Mappings {
 		public void Configure(EntityTypeBuilder<UserRole> builder) {
 			builder.ToTable("user_roles", "thoth");
 
+			builder.Property(u => u.Id)
+				.HasColumnName("id");
+
 			builder.HasKey(ur => new { ur.UserId, ur.RoleId });
 
 			builder.Property(ur => ur.UserId)
@@ -22,6 +25,14 @@ namespace Thoth.Infrastructure.Mappings {
 			builder.HasOne(ur => ur.Role)
 				.WithMany(r => r.UserRoles)
 				.HasForeignKey(ur => ur.RoleId);
+
+			builder.Property(o => o.CreatedAt)
+				.HasColumnName("created_at")
+				.HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+			builder.Property(o => o.ModifiedAt)
+				.HasColumnName("modified_at")
+				.HasDefaultValueSql("CURRENT_TIMESTAMP");
 		}
 	}
 }

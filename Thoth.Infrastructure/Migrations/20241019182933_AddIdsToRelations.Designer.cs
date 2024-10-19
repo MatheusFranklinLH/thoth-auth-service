@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Thoth.Infrastructure.Context;
@@ -11,9 +12,11 @@ using Thoth.Infrastructure.Context;
 namespace Thoth.Infrastructure.Migrations
 {
     [DbContext(typeof(ThothDbContext))]
-    partial class ThothDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241019182933_AddIdsToRelations")]
+    partial class AddIdsToRelations
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

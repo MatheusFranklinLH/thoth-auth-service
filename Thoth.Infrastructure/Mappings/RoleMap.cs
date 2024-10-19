@@ -16,6 +16,14 @@ namespace Thoth.Infrastructure.Mappings {
 				.HasColumnName("name")
 				.HasMaxLength(100)
 				.IsRequired();
+
+			builder.Property(o => o.CreatedAt)
+				.HasColumnName("created_at")
+				.HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+			builder.Property(o => o.ModifiedAt)
+				.HasColumnName("modified_at")
+				.HasDefaultValueSql("CURRENT_TIMESTAMP");
 		}
 	}
 }

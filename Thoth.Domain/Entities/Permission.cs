@@ -1,9 +1,7 @@
-using Flunt.Notifications;
 using Flunt.Validations;
 
 namespace Thoth.Domain.Entities {
-	public class Permission : Notifiable<Notification> {
-		public int Id { get; private set; }
+	public class Permission : BaseEntity {
 		public string Name { get; private set; }
 		public ICollection<RolePermission> RolePermissions { get; private set; }
 

@@ -1,5 +1,5 @@
 namespace Thoth.Domain.Entities {
-	public class UserRole {
+	public class UserRole : BaseEntity {
 		public int UserId { get; private set; }
 		public User User { get; private set; }
 

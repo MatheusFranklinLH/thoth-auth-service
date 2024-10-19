@@ -26,5 +26,39 @@ namespace Thoth.Infrastructure.Context {
 
 			base.OnModelCreating(modelBuilder);
 		}
+
+		public override int SaveChanges() {
+			var entries = ChangeTracker.Entries<BaseEntity>();
+			DateTime now = DateTime.UtcNow;
+
+			foreach (var entry in entries) {
+				if (entry.State == EntityState.Added) {
+					entry.Entity.CreatedAt = now;
+					entry.Entity.ModifiedAt = now;
+				}
+				else if (entry.State == EntityState.Modified) {
+					entry.Entity.ModifiedAt = now;
+				}
+			}
+
+			return base.SaveChanges();
+		}
+
+		public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken()) {
+			var entries = ChangeTracker.Entries<BaseEntity>();
+			DateTime now = DateTime.UtcNow;
+
+			foreach (var entry in entries) {
+				if (entry.State == EntityState.Added) {
+					entry.Entity.CreatedAt = now;
+					entry.Entity.ModifiedAt = now;
+				}
+				else if (entry.State == EntityState.Modified) {
+					entry.Entity.ModifiedAt = now;
+				}
+			}
+
+			return await base.SaveChangesAsync(cancellationToken);
+		}
 	}
 }

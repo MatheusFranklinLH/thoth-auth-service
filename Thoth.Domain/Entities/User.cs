@@ -1,9 +1,7 @@
-using Flunt.Notifications;
 using Flunt.Validations;
 
 namespace Thoth.Domain.Entities {
-	public class User : Notifiable<Notification> {
-		public int Id { get; private set; }
+	public class User : BaseEntity {
 		public string Name { get; private set; }
 		public string Email { get; private set; }
 		public string PasswordHash { get; private set; }

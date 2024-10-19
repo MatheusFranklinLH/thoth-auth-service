@@ -30,6 +30,14 @@ namespace Thoth.Infrastructure.Mappings {
 				.HasColumnName("organization_id")
 				.IsRequired();
 
+			builder.Property(o => o.CreatedAt)
+				.HasColumnName("created_at")
+				.HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+			builder.Property(o => o.ModifiedAt)
+				.HasColumnName("modified_at")
+				.HasDefaultValueSql("CURRENT_TIMESTAMP");
+
 			builder.HasOne(u => u.Organization)
 				.WithMany(o => o.Users)
 				.HasForeignKey(u => u.OrganizationId);
