@@ -1,0 +1,29 @@
+@Thoth.API_HostAddress = http://localhost:5142
+###
+GET {{Thoth.API_HostAddress}}/api/roles
+Content-Type: application/json
+
+###
+POST {{Thoth.API_HostAddress}}/api/roles
+Content-Type: application/json
+
+{
+  "name": "Admin",
+  "permissionIds": [2, 4, 5]
+}
+
+###
+PUT {{Thoth.API_HostAddress}}/api/roles
+Content-Type: application/json
+
+{
+  "id": 1,
+  "name": "Super Admin",
+  "permissionIds": [2, 5]
+}
+
+###
+DELETE {{Thoth.API_HostAddress}}/api/roles/1
+Content-Type: application/json
+
+

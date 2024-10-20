@@ -16,10 +16,13 @@ builder.Services.AddDbContext<ThothDbContext>(options =>
 	options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddScoped<ILoggerService, LoggerService>();
+builder.Services.AddTransient<ITransactionRepository, TransactionRepository>();
 builder.Services.AddScoped<IOrganizationRepository, OrganizationRepository>();
 builder.Services.AddScoped<OrganizationService>();
 builder.Services.AddScoped<IPermissionRepository, PermissionRepository>();
 builder.Services.AddScoped<PermissionService>();
+builder.Services.AddScoped<IRoleRepository, RoleRepository>();
+builder.Services.AddScoped<RoleService>();
 
 
 var app = builder.Build();

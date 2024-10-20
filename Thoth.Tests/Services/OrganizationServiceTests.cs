@@ -95,7 +95,8 @@ namespace Thoth.Tests.Services {
 		public async Task Should_Return_False_When_Updating_Organization_And_Name_Is_Duplicate() {
 			var request = new UpdateOrganizationRequest { Id = 1, Name = "Duplicate Organization" };
 			var existingOrganization = new Organization("Old Organization");
-			var duplicateOrganization = new Organization("Duplicate Organization") { Id = 2 };
+			var duplicateOrganization = new Organization("Duplicate Organization");
+			duplicateOrganization.SetId(2);
 			_repositoryMock.Setup(repo => repo.GetByIdAsync(1)).ReturnsAsync(existingOrganization);
 			_repositoryMock.Setup(repo => repo.GetByNameAsync(It.IsAny<string>())).ReturnsAsync(duplicateOrganization);
 

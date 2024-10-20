@@ -33,11 +33,11 @@ namespace Thoth.Infrastructure.Context {
 
 			foreach (var entry in entries) {
 				if (entry.State == EntityState.Added) {
-					entry.Entity.CreatedAt = now;
-					entry.Entity.ModifiedAt = now;
+					entry.Entity.SetCreatedAt(now);
+					entry.Entity.SetModifiedAt(now);
 				}
 				else if (entry.State == EntityState.Modified) {
-					entry.Entity.ModifiedAt = now;
+					entry.Entity.SetModifiedAt(now);
 				}
 			}
 
@@ -50,11 +50,11 @@ namespace Thoth.Infrastructure.Context {
 
 			foreach (var entry in entries) {
 				if (entry.State == EntityState.Added) {
-					entry.Entity.CreatedAt = now;
-					entry.Entity.ModifiedAt = now;
+					entry.Entity.SetCreatedAt(now);
+					entry.Entity.SetModifiedAt(now);
 				}
 				else if (entry.State == EntityState.Modified) {
-					entry.Entity.ModifiedAt = now;
+					entry.Entity.SetModifiedAt(now);
 				}
 			}
 

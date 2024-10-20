@@ -84,7 +84,8 @@ namespace Thoth.Tests.Services {
 		public async Task Should_Return_False_When_Updating_Permission_And_Name_Is_Duplicate() {
 			var request = new UpdatePermissionRequest { Id = 1, Name = "Duplicate Permission" };
 			var existingPermission = new Permission("Old Permission");
-			var duplicatePermission = new Permission("Duplicate Permission") { Id = 2 };
+			var duplicatePermission = new Permission("Duplicate Permission");
+			duplicatePermission.SetId(2);
 			_repositoryMock.Setup(repo => repo.GetByIdAsync(1)).ReturnsAsync(existingPermission);
 			_repositoryMock.Setup(repo => repo.GetByNameAsync(It.IsAny<string>())).ReturnsAsync(duplicatePermission);
 
