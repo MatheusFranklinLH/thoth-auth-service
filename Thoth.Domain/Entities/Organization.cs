@@ -9,6 +9,10 @@ namespace Thoth.Domain.Entities {
 			Name = name;
 			Users = new List<User>();
 
+			Validate();
+		}
+
+		public void Validate() {
 			AddNotifications(new Contract<Organization>()
 				.Requires()
 				.IsNotNullOrEmpty(Name, "Name", "Organization name is required"));
@@ -17,9 +21,7 @@ namespace Thoth.Domain.Entities {
 		public void Update(string name) {
 			Name = name;
 
-			AddNotifications(new Contract<Organization>()
-				.Requires()
-				.IsNotNullOrEmpty(Name, "Name", "Organization name is required"));
+			Validate();
 		}
 	}
 }

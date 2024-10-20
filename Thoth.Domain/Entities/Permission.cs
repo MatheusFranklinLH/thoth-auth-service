@@ -9,9 +9,18 @@ namespace Thoth.Domain.Entities {
 			Name = name;
 			RolePermissions = new List<RolePermission>();
 
+			Validate();
+		}
+
+		public void Validate() {
 			AddNotifications(new Contract<Permission>()
 				.Requires()
 				.IsNotNullOrEmpty(Name, "Name", "Permission name is required"));
+		}
+
+		public void Update(string name) {
+			Name = name;
+			Validate();
 		}
 	}
 }

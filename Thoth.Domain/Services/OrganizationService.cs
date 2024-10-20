@@ -1,7 +1,9 @@
 using Thoth.API.Requests;
 using Thoth.Domain.Entities;
+using Thoth.Domain.Extensions;
 using Thoth.Domain.Interfaces;
 using Thoth.Domain.Repositories;
+using Thoth.Domain.Views;
 
 namespace Thoth.Domain.Services {
 	public class OrganizationService {
@@ -19,7 +21,7 @@ namespace Thoth.Domain.Services {
 			request.Validate();
 
 			if (!request.IsValid) {
-				_logger.Insert("Validation failed for organization creation");
+				_logger.Insert("Validation failed fast for organization creation");
 				return false;
 			}
 
@@ -42,8 +44,9 @@ namespace Thoth.Domain.Services {
 			return true;
 		}
 
-		public async Task<List<Organization>> GetAllOrganizationsAsync() {
-			return await _repository.GetAllAsync();
+		public async Task<List<OrganizationView>> GetAllOrganizationsAsync() {
+			var organizations = await _repository.GetAllAsync();
+			return organizations.ToView();
 		}
 
 
@@ -52,7 +55,7 @@ namespace Thoth.Domain.Services {
 
 			request.Validate();
 			if (!request.IsValid) {
-				_logger.Insert("Validation failed for organization update");
+				_logger.Insert("Validation failed fast for organization update");
 				return false;
 			}
 
@@ -60,6 +63,13 @@ namespace Thoth.Domain.Services {
 			if (organization == null) {
 				request.AddNotification("Id", "Organization not found");
 				_logger.Insert("Organization update failed: organization not found");
+				return false;
+			}
+
+			var existingOrganization = await _repository.GetByNameAsync(request.Name);
+			if (existingOrganization != null && existingOrganization.Id != organization.Id) {
+				request.AddNotification("Name", "An organization with this name already exists.");
+				_logger.Insert("Organization update failed: duplicate name");
 				return false;
 			}
 

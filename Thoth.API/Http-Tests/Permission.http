@@ -1,0 +1,24 @@
+@Thoth.API_HostAddress = http://localhost:5142
+### Criar permissão
+POST {{Thoth.API_HostAddress}}/api/permissions
+Content-Type: application/json
+
+{
+  "name": "New Permission"
+}
+
+### Listar todas as permissões
+GET {{Thoth.API_HostAddress}}/api/permissions
+
+### Atualizar permissão
+PUT {{Thoth.API_HostAddress}}/api/permissions
+Content-Type: application/json
+
+{
+  "id": 1,
+  "name": "Updated Permission"
+}
+
+### Deletar permissão
+DELETE {{Thoth.API_HostAddress}}/api/permissions/1
+

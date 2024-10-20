@@ -15,9 +15,11 @@ builder.Services.AddControllers();
 builder.Services.AddDbContext<ThothDbContext>(options =>
 	options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+builder.Services.AddScoped<ILoggerService, LoggerService>();
 builder.Services.AddScoped<IOrganizationRepository, OrganizationRepository>();
 builder.Services.AddScoped<OrganizationService>();
-builder.Services.AddScoped<ILoggerService, LoggerService>();
+builder.Services.AddScoped<IPermissionRepository, PermissionRepository>();
+builder.Services.AddScoped<PermissionService>();
 
 
 var app = builder.Build();
