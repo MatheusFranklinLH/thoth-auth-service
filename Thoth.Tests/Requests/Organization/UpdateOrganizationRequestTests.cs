@@ -1,5 +1,4 @@
-using Thoth.API.Requests;
-using Xunit;
+using Thoth.Domain.Requests;
 
 namespace Thoth.Tests.Requests {
 	public class UpdateOrganizationRequestTests {

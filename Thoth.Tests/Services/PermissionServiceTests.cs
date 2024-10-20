@@ -1,8 +1,8 @@
 using Moq;
-using Thoth.API.Requests;
 using Thoth.Domain.Entities;
 using Thoth.Domain.Interfaces;
 using Thoth.Domain.Repositories;
+using Thoth.Domain.Requests;
 using Thoth.Domain.Services;
 
 namespace Thoth.Tests.Services {

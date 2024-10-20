@@ -1,4 +1,4 @@
-namespace Thoth.API.Interfaces {
+namespace Thoth.Domain.Interfaces {
 	public interface IRequest {
 		void Validate();
 	}

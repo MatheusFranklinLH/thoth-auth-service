@@ -1,8 +1,8 @@
 using Flunt.Notifications;
 using Flunt.Validations;
-using Thoth.API.Interfaces;
+using Thoth.Domain.Interfaces;
 
-namespace Thoth.API.Requests {
+namespace Thoth.Domain.Requests {
 	public class UpdatePermissionRequest : Notifiable<Notification>, IRequest {
 		public int Id { get; set; }
 		public string Name { get; set; }

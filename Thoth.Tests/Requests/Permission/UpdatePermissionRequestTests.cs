@@ -1,4 +1,4 @@
-using Thoth.API.Requests;
+using Thoth.Domain.Requests;
 using Xunit;
 
 namespace Thoth.Tests.Requests {

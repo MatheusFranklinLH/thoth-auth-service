@@ -16,6 +16,10 @@ namespace Thoth.Domain.Entities {
 			OrganizationId = organizationId;
 			UserRoles = new List<UserRole>();
 
+			Validate();
+		}
+
+		private void Validate() {
 			AddNotifications(new Contract<User>()
 				.Requires()
 				.IsNotNullOrEmpty(Name, "Name", "Name is required")

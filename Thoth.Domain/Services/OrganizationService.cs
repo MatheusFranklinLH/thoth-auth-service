@@ -1,8 +1,8 @@
-using Thoth.API.Requests;
 using Thoth.Domain.Entities;
 using Thoth.Domain.Extensions;
 using Thoth.Domain.Interfaces;
 using Thoth.Domain.Repositories;
+using Thoth.Domain.Requests;
 using Thoth.Domain.Views;
 
 namespace Thoth.Domain.Services {

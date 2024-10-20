@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using Thoth.API.Requests;
+using Thoth.Domain.Requests;
 using Thoth.Domain.Services;
 
 namespace Thoth.API.Controllers {

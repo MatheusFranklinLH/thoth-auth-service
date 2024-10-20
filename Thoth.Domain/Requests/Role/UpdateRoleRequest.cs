@@ -1,6 +1,6 @@
 using Flunt.Notifications;
 using Flunt.Validations;
-using Thoth.API.Interfaces;
+using Thoth.Domain.Interfaces;
 
 namespace Thoth.Domain.Requests {
 	public class UpdateRoleRequest : Notifiable<Notification>, IRequest {

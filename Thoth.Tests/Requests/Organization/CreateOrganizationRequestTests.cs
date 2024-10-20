@@ -1,4 +1,4 @@
-using Thoth.API.Requests;
+using Thoth.Domain.Requests;
 
 namespace Thoth.Tests.Requests {
 	public class CreateOrganizationRequestTests {
