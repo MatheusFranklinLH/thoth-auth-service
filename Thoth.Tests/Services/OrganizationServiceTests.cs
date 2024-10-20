@@ -71,6 +71,7 @@ namespace Thoth.Tests.Services {
 			var request = new UpdateOrganizationRequest { Id = 1, Name = "Updated Organization" };
 			var existingOrganization = new Organization("Old Organization");
 			_repositoryMock.Setup(repo => repo.GetByIdAsync(1)).ReturnsAsync(existingOrganization);
+			_repositoryMock.Setup(repo => repo.GetByNameAsync(It.IsAny<string>())).ReturnsAsync((Organization)null);
 
 			var result = await _organizationService.UpdateOrganizationAsync(request);
 
@@ -87,6 +88,21 @@ namespace Thoth.Tests.Services {
 
 			Assert.False(result);
 			Assert.Contains(request.Notifications, n => n.Key == "Id");
+			_repositoryMock.Verify(repo => repo.UpdateAsync(It.IsAny<Organization>()), Times.Never);
+		}
+
+		[Fact]
+		public async Task Should_Return_False_When_Updating_Organization_And_Name_Is_Duplicate() {
+			var request = new UpdateOrganizationRequest { Id = 1, Name = "Duplicate Organization" };
+			var existingOrganization = new Organization("Old Organization");
+			var duplicateOrganization = new Organization("Duplicate Organization") { Id = 2 };
+			_repositoryMock.Setup(repo => repo.GetByIdAsync(1)).ReturnsAsync(existingOrganization);
+			_repositoryMock.Setup(repo => repo.GetByNameAsync(It.IsAny<string>())).ReturnsAsync(duplicateOrganization);
+
+			var result = await _organizationService.UpdateOrganizationAsync(request);
+
+			Assert.False(result);
+			Assert.Contains(request.Notifications, n => n.Key == "Name");
 			_repositoryMock.Verify(repo => repo.UpdateAsync(It.IsAny<Organization>()), Times.Never);
 		}
 
