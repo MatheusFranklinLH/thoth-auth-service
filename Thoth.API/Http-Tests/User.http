@@ -1,0 +1,36 @@
+@Thoth.API_HostAddress = http://localhost:5142
+###
+GET {{Thoth.API_HostAddress}}/api/users
+Content-Type: application/json
+
+###
+POST {{Thoth.API_HostAddress}}/api/users
+Content-Type: application/json
+
+{
+  "name": "Bruce Wayne",
+  "email": "brucewayne@example.com",
+  "password": "Password@123",
+  "organizationId": 1,
+  "roleIds": [1, 3, 4]
+}
+
+###
+PUT {{Thoth.API_HostAddress}}/api/users
+Content-Type: application/json
+
+{
+  "id": 1,
+  "name": "Bruce Wayne Updated",
+  "email": "bruceupdated@example.com",
+  "password": "NewPassword@123",
+  "organizationId": 1,
+  "roleIds": [1, 3]
+}
+
+###
+DELETE {{Thoth.API_HostAddress}}/api/users/1
+Content-Type: application/json
+
+
+
