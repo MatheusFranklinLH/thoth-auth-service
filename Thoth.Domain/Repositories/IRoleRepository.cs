@@ -1,15 +1,13 @@
 using Thoth.Domain.Entities;
 
-namespace Thoth.Domain.Repositories {
-	public interface IRoleRepository {
-		Task<IEnumerable<Role>> GetAllAsync();
-		Task<Role> GetByIdAsync(int id);
-		Task<Role> GetByNameAsync(string name);
-		Task AddAsync(Role role);
-		Task UpdateAsync(Role role);
-		Task DeleteAsync(Role role);
-		Task AddRolePermissionsAsync(List<RolePermission> rolePermissions);
-		Task DeleteRolePermissionsAsync(int roleId, List<int> permissionIdsToKeep);
-		Task<IEnumerable<RolePermission>> GetRolePermissionsByRoleIdAsync(int roleId);
-	}
+namespace Thoth.Domain.Repositories;
+
+public interface IRoleRepository {
+	public Task<List<Role>> GetAllAsync();
+	public Task<Role> GetByNameAsync(string name);
+	public Task<Role> GetByIdAsync(int id);
+	public Task AddAsync(Role role);
+	public Task UpdateAsync(Role role);
+	public Task UpdatePermissionsAsync(Role role, List<int> permissionIds);
+	public Task DeleteAsync(Role role);
 }

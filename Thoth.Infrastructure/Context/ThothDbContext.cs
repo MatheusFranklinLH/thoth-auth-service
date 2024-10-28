@@ -1,25 +1,20 @@
 using Flunt.Notifications;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Thoth.Domain.Entities;
 using Thoth.Infrastructure.Mappings;
 
 namespace Thoth.Infrastructure.Context {
-	public class ThothDbContext : DbContext {
+	public class ThothDbContext : IdentityDbContext<User, Role, int> {
 		public ThothDbContext(DbContextOptions<ThothDbContext> options) : base(options) { }
 
-		public DbSet<User> Users { get; set; }
 		public DbSet<Organization> Organizations { get; set; }
-		public DbSet<Role> Roles { get; set; }
 		public DbSet<Permission> Permissions { get; set; }
-		public DbSet<UserRole> UserRoles { get; set; }
 		public DbSet<RolePermission> RolePermissions { get; set; }
 
 		protected override void OnModelCreating(ModelBuilder modelBuilder) {
-			modelBuilder.ApplyConfiguration(new UserMap());
 			modelBuilder.ApplyConfiguration(new OrganizationMap());
-			modelBuilder.ApplyConfiguration(new RoleMap());
 			modelBuilder.ApplyConfiguration(new PermissionMap());
-			modelBuilder.ApplyConfiguration(new UserRoleMap());
 			modelBuilder.ApplyConfiguration(new RolePermissionMap());
 
 			modelBuilder.Ignore<Notification>();
@@ -28,27 +23,19 @@ namespace Thoth.Infrastructure.Context {
 		}
 
 		public override int SaveChanges() {
-			var entries = ChangeTracker.Entries<BaseEntity>();
-			DateTime now = DateTime.UtcNow;
-
-			foreach (var entry in entries) {
-				if (entry.State == EntityState.Added) {
-					entry.Entity.SetCreatedAt(now);
-					entry.Entity.SetModifiedAt(now);
-				}
-				else if (entry.State == EntityState.Modified) {
-					entry.Entity.SetModifiedAt(now);
-				}
-			}
-
+			UpdateTimestamps();
 			return base.SaveChanges();
 		}
 
 		public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken()) {
-			var entries = ChangeTracker.Entries<BaseEntity>();
-			DateTime now = DateTime.UtcNow;
+			UpdateTimestamps();
+			return await base.SaveChangesAsync(cancellationToken);
+		}
 
-			foreach (var entry in entries) {
+		private void UpdateTimestamps() {
+			var now = DateTime.UtcNow;
+
+			foreach (var entry in ChangeTracker.Entries<User>()) {
 				if (entry.State == EntityState.Added) {
 					entry.Entity.SetCreatedAt(now);
 					entry.Entity.SetModifiedAt(now);
@@ -58,7 +45,26 @@ namespace Thoth.Infrastructure.Context {
 				}
 			}
 
-			return await base.SaveChangesAsync(cancellationToken);
+			foreach (var entry in ChangeTracker.Entries<Role>()) {
+				if (entry.State == EntityState.Added) {
+					entry.Entity.SetCreatedAt(now);
+					entry.Entity.SetModifiedAt(now);
+				}
+				else if (entry.State == EntityState.Modified) {
+					entry.Entity.SetModifiedAt(now);
+				}
+			}
+
+			var entries = ChangeTracker.Entries<BaseEntity>();
+			foreach (var entry in entries) {
+				if (entry.State == EntityState.Added) {
+					entry.Entity.SetCreatedAt(now);
+					entry.Entity.SetModifiedAt(now);
+				}
+				else if (entry.State == EntityState.Modified) {
+					entry.Entity.SetModifiedAt(now);
+				}
+			}
 		}
 	}
 }

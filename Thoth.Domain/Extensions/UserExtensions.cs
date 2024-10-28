@@ -3,17 +3,14 @@ using Thoth.Domain.Views;
 
 namespace Thoth.Domain.Extensions {
 	public static class UserExtensions {
-		public static UserView ToView(this User user) {
+		public static UserView ToView(this User user, List<string> roles) {
 			return new UserView {
-				Name = user.Name,
+				Id = user.Id,
+				Name = user.UserName,
 				Email = user.Email,
 				Organization = user.Organization.ToView(),
-				Roles = user.UserRoles.Select(ur => ur.Role.ToView()).ToList()
+				Roles = roles
 			};
-		}
-
-		public static List<UserView> ToView(this IEnumerable<User> users) {
-			return users.Select(u => u.ToView()).ToList();
 		}
 	}
 }

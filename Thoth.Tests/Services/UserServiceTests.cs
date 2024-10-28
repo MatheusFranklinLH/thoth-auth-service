@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Identity;
 using Moq;
 using Thoth.Domain.Entities;
 using Thoth.Domain.Interfaces;
@@ -7,8 +8,7 @@ using Thoth.Domain.Services;
 
 namespace Thoth.Tests.Services {
 	public class UserServiceTests {
-		private readonly Mock<IUserRepository> _userRepositoryMock;
-		private readonly Mock<IRoleRepository> _roleRepositoryMock;
+		private readonly Mock<IUserRepository> _userRepository;
 		private readonly Mock<ITransactionRepository> _transactionRepositoryMock;
 		private readonly Mock<ILoggerService> _loggerMock;
 		private readonly UserService _userService;
@@ -17,11 +17,10 @@ namespace Thoth.Tests.Services {
 		private const string Password = "Password@123";
 
 		public UserServiceTests() {
-			_userRepositoryMock = new Mock<IUserRepository>();
-			_roleRepositoryMock = new Mock<IRoleRepository>();
+			_userRepository = new Mock<IUserRepository>();
 			_transactionRepositoryMock = new Mock<ITransactionRepository>();
 			_loggerMock = new Mock<ILoggerService>();
-			_userService = new UserService(_userRepositoryMock.Object, _roleRepositoryMock.Object, _transactionRepositoryMock.Object, _loggerMock.Object);
+			_userService = new UserService(_transactionRepositoryMock.Object, _loggerMock.Object, _userRepository.Object);
 		}
 
 		[Fact]
@@ -34,12 +33,14 @@ namespace Thoth.Tests.Services {
 				RoleIds = new List<int> { 1, 2 }
 			};
 
-			_userRepositoryMock.Setup(r => r.GetByEmailAsync(It.IsAny<string>())).ReturnsAsync((User)null);
+			_userRepository.Setup(u => u.GetByEmailAsync(It.IsAny<string>())).ReturnsAsync((User)null);
 
 			var result = await _userService.CreateUserAsync(request);
 
 			Assert.True(result);
-			_userRepositoryMock.Verify(r => r.AddAsync(It.IsAny<User>()), Times.Once);
+			_userRepository.Verify(u => u.AddAsync(It.IsAny<User>(), Password), Times.Once);
+			_userRepository.Verify(u => u.AddToRolesAsync(It.IsAny<User>(), It.IsAny<List<int>>()), Times.Once);
+			_transactionRepositoryMock.Verify(t => t.CommitAsync(), Times.Once);
 		}
 
 		[Fact]
@@ -52,14 +53,14 @@ namespace Thoth.Tests.Services {
 				RoleIds = new List<int> { 1, 2 }
 			};
 
-			var existingUser = new User("Existing User", Email, 1, Password);
+			var existingUser = new User(UserName, Email, 1);
 
-			_userRepositoryMock.Setup(r => r.GetByEmailAsync(It.IsAny<string>())).ReturnsAsync(existingUser);
+			_userRepository.Setup(u => u.GetByEmailAsync(It.IsAny<string>())).ReturnsAsync(existingUser);
 
 			var result = await _userService.CreateUserAsync(request);
 
 			Assert.False(result);
-			_userRepositoryMock.Verify(r => r.AddAsync(It.IsAny<User>()), Times.Never);
+			_userRepository.Verify(u => u.AddAsync(It.IsAny<User>(), It.IsAny<string>()), Times.Never);
 		}
 
 		[Fact]
@@ -73,15 +74,16 @@ namespace Thoth.Tests.Services {
 				RoleIds = new List<int> { 1, 3 }
 			};
 
-			var existingUser = new User(UserName, Email, 1, Password);
+			var existingUser = new User(UserName, Email, 1);
 
-			_userRepositoryMock.Setup(r => r.GetByIdAsync(It.IsAny<int>())).ReturnsAsync(existingUser);
-			_userRepositoryMock.Setup(r => r.GetByEmailAsync(It.IsAny<string>())).ReturnsAsync((User)null);
+			_userRepository.Setup(u => u.GetByIdAsync(It.IsAny<int>())).ReturnsAsync(existingUser);
+			_userRepository.Setup(u => u.GetByEmailAsync(It.IsAny<string>())).ReturnsAsync((User)null);
 
 			var result = await _userService.UpdateUserAsync(request);
 
 			Assert.True(result);
-			_userRepositoryMock.Verify(r => r.UpdateAsync(existingUser), Times.Once);
+			_userRepository.Verify(u => u.UpdateAsync(existingUser), Times.Once);
+			_userRepository.Verify(u => u.AddToRolesAsync(existingUser, It.IsAny<List<int>>()), Times.Once);
 		}
 
 		[Fact]
@@ -95,44 +97,38 @@ namespace Thoth.Tests.Services {
 				RoleIds = new List<int> { 1, 3 }
 			};
 
-			var existingUser = new User(UserName, Email, 1, Password);
-			var otherUserWithSameEmail = new User("Other User", "existingemail@example.com", 2, Password);
+			var existingUser = new User(UserName, Email, 1);
+			var otherUserWithSameEmail = new User("Other User", "existingemail@example.com", 2);
 
-			_userRepositoryMock.Setup(r => r.GetByIdAsync(It.IsAny<int>())).ReturnsAsync(existingUser);
-			_userRepositoryMock.Setup(r => r.GetByEmailAsync(It.IsAny<string>())).ReturnsAsync(otherUserWithSameEmail);
+			_userRepository.Setup(u => u.GetByIdAsync(It.IsAny<int>())).ReturnsAsync(existingUser);
+			_userRepository.Setup(u => u.GetByEmailAsync(It.IsAny<string>())).ReturnsAsync(otherUserWithSameEmail);
 
 			var result = await _userService.UpdateUserAsync(request);
 
 			Assert.False(result);
-			_userRepositoryMock.Verify(r => r.UpdateAsync(It.IsAny<User>()), Times.Never);
+			_userRepository.Verify(u => u.UpdateAsync(It.IsAny<User>()), Times.Never);
 		}
 
 		[Fact]
-		public async Task Should_Delete_User_Successfully_With_Transaction() {
-			var existingUser = new User(UserName, Email, 1, Password);
+		public async Task Should_Delete_User_Successfully() {
+			var existingUser = new User(UserName, Email, 1);
 
-			_userRepositoryMock.Setup(r => r.GetByIdAsync(It.IsAny<int>())).ReturnsAsync(existingUser);
+			_userRepository.Setup(u => u.GetByIdAsync(It.IsAny<int>())).ReturnsAsync(existingUser);
 
 			var result = await _userService.DeleteUserAsync(1);
 
 			Assert.True(result);
-			_transactionRepositoryMock.Verify(t => t.BeginTransactionAsync(), Times.Once);
-			_transactionRepositoryMock.Verify(t => t.CommitAsync(), Times.Once);
-			_userRepositoryMock.Verify(r => r.DeleteAsync(existingUser), Times.Once);
+			_userRepository.Verify(u => u.DeleteAsync(existingUser), Times.Once);
 		}
 
 		[Fact]
-		public async Task Should_Rollback_Transaction_On_Delete_Error() {
-			var existingUser = new User(UserName, Email, 1, Password);
-
-			_userRepositoryMock.Setup(r => r.GetByIdAsync(It.IsAny<int>())).ReturnsAsync(existingUser);
-			_userRepositoryMock.Setup(r => r.DeleteAsync(It.IsAny<User>())).ThrowsAsync(new System.Exception());
+		public async Task Should_Return_False_When_User_Not_Found_On_Delete() {
+			_userRepository.Setup(u => u.GetByIdAsync(It.IsAny<int>())).ReturnsAsync((User)null);
 
 			var result = await _userService.DeleteUserAsync(1);
 
 			Assert.False(result);
-			_transactionRepositoryMock.Verify(t => t.BeginTransactionAsync(), Times.Once);
-			_transactionRepositoryMock.Verify(t => t.RollbackAsync(), Times.Once);
+			_userRepository.Verify(u => u.DeleteAsync(It.IsAny<User>()), Times.Never);
 		}
 	}
 }

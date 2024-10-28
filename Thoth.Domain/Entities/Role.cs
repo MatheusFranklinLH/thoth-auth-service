@@ -1,42 +1,27 @@
-using Flunt.Validations;
+using Microsoft.AspNetCore.Identity;
 
 namespace Thoth.Domain.Entities {
-	public class Role : BaseEntity {
-		public string Name { get; private set; }
-		public ICollection<UserRole> UserRoles { get; private set; }
+	public class Role : IdentityRole<int> {
+		public DateTime CreatedAt { get; private set; }
+		public DateTime ModifiedAt { get; private set; }
 		public ICollection<RolePermission> RolePermissions { get; private set; }
+
+		public void SetCreatedAt(DateTime createdAt) => CreatedAt = createdAt;
+		public void SetModifiedAt(DateTime modifiedAt) => ModifiedAt = modifiedAt;
 
 		public Role(string name) {
 			Name = name;
-			UserRoles = new List<UserRole>();
 			RolePermissions = new List<RolePermission>();
-
-			Validate();
-		}
-
-		private void Validate() {
-			AddNotifications(new Contract<Role>()
-				.Requires()
-				.IsNotNullOrEmpty(Name, "Name", "Role name is required"));
 		}
 
 		public void Update(string name) {
 			Name = name;
-
-			Validate();
 		}
 
 		public void AddPermission(int permissionId) {
 			if (RolePermissions.Any(rp => rp.PermissionId == permissionId))
 				return;
 			RolePermissions.Add(new RolePermission(Id, permissionId));
-		}
-
-		public void RemovePermission(int permissionId) {
-			var rolePermission = RolePermissions.FirstOrDefault(rp => rp.PermissionId == permissionId);
-			if (rolePermission is null)
-				return;
-			RolePermissions.Remove(rolePermission);
 		}
 
 		public void SetPermissions(List<int> permissionIds) {

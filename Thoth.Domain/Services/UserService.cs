@@ -1,5 +1,4 @@
 using Thoth.Domain.Entities;
-using Thoth.Domain.Extensions;
 using Thoth.Domain.Interfaces;
 using Thoth.Domain.Repositories;
 using Thoth.Domain.Requests;
@@ -8,20 +7,21 @@ using Thoth.Domain.Views;
 namespace Thoth.Domain.Services {
 	public class UserService {
 		private readonly IUserRepository _userRepository;
-		private readonly IRoleRepository _roleRepository;
 		private readonly ITransactionRepository _transactionRepository;
 		private readonly ILoggerService _logger;
 
-		public UserService(IUserRepository userRepository, IRoleRepository roleRepository, ITransactionRepository transactionRepository, ILoggerService logger) {
+		public UserService(
+			ITransactionRepository transactionRepository,
+			ILoggerService logger,
+			IUserRepository userRepository
+		) {
 			_userRepository = userRepository;
-			_roleRepository = roleRepository;
 			_transactionRepository = transactionRepository;
 			_logger = logger;
 		}
 
-		public async Task<IEnumerable<UserView>> GetAllUsersAsync() {
-			var users = await _userRepository.GetAllAsync();
-			return users.ToView();
+		public async Task<List<UserView>> GetAllUsersAsync() {
+			return await _userRepository.GetAllUsersViewsAsync();
 		}
 
 		public async Task<bool> CreateUserAsync(CreateUserRequest request) {
@@ -40,16 +40,22 @@ namespace Thoth.Domain.Services {
 				return false;
 			}
 
-			var user = new User(request.Name, request.Email, request.OrganizationId, request.Password);
+			var user = new User(request.Name, request.Email, request.OrganizationId);
+			await _transactionRepository.BeginTransactionAsync();
 
-			foreach (var roleId in request.RoleIds) {
-				user.AddRole(roleId);
+			try {
+				await _userRepository.AddAsync(user, request.Password);
+				await _userRepository.AddToRolesAsync(user, request.RoleIds);
+				await _transactionRepository.CommitAsync();
+				_logger.Insert("User created successfully");
+				return true;
 			}
-
-			await _userRepository.AddAsync(user);
-			_logger.Insert("User created successfully");
-
-			return true;
+			catch {
+				await _transactionRepository.RollbackAsync();
+				request.AddNotification("User", "An error occurred while creating the user.");
+				_logger.Insert("User creation failed due to an exception.");
+				return false;
+			}
 		}
 
 		public async Task<bool> UpdateUserAsync(UpdateUserRequest request) {
@@ -75,13 +81,28 @@ namespace Thoth.Domain.Services {
 			}
 
 			user.Update(request.Name, request.Email, request.OrganizationId);
-			user.SetPassword(request.Password);
-			user.SetRoles(request.RoleIds);
 
-			await _userRepository.UpdateAsync(user);
-			_logger.Insert("User updated successfully");
+			await _transactionRepository.BeginTransactionAsync();
+			try {
+				await _userRepository.UpdateAsync(user);
 
-			return true;
+				if (!string.IsNullOrEmpty(request.Password)) {
+					await _userRepository.UpdatePasswordAsync(user, request.Password);
+				}
+
+				await _userRepository.RemoveUserRolesAsync(user);
+				await _userRepository.AddToRolesAsync(user, request.RoleIds);
+
+				await _transactionRepository.CommitAsync();
+				_logger.Insert("User updated successfully");
+				return true;
+			}
+			catch {
+				await _transactionRepository.RollbackAsync();
+				request.AddNotification("User", "An error occurred while updating the user.");
+				_logger.Insert("User update failed due to an exception.");
+				return false;
+			}
 		}
 
 		public async Task<bool> DeleteUserAsync(int id) {
@@ -93,18 +114,7 @@ namespace Thoth.Domain.Services {
 				return false;
 			}
 
-			await _transactionRepository.BeginTransactionAsync();
-			try {
-				await _userRepository.DeleteUserRolesAsync(id);
-				await _userRepository.DeleteAsync(user);
-				await _transactionRepository.CommitAsync();
-			}
-			catch {
-				await _transactionRepository.RollbackAsync();
-				_logger.Insert("User deletion failed: an error occurred while deleting in the database");
-				return false;
-			}
-
+			await _userRepository.DeleteAsync(user);
 			_logger.Insert("User deleted successfully");
 			return true;
 		}

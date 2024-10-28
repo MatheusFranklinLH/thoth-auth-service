@@ -12,7 +12,7 @@ Content-Type: application/json
   "email": "brucewayne@example.com",
   "password": "Password@123",
   "organizationId": 1,
-  "roleIds": [1, 3, 4]
+  "roleIds": [1, 3]
 }
 
 ###
@@ -25,7 +25,7 @@ Content-Type: application/json
   "email": "bruceupdated@example.com",
   "password": "NewPassword@123",
   "organizationId": 1,
-  "roleIds": [1, 3]
+  "roleIds": [1, 5]
 }
 
 ###

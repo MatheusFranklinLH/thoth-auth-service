@@ -9,7 +9,7 @@ Content-Type: application/json
 
 {
   "name": "Admin",
-  "permissionIds": [2, 4, 5]
+  "permissionIds": [4, 5]
 }
 
 ###
@@ -17,13 +17,13 @@ PUT {{Thoth.API_HostAddress}}/api/roles
 Content-Type: application/json
 
 {
-  "id": 1,
-  "name": "Super Admin",
+  "id": 3,
+  "name": "SuperAdmin2",
   "permissionIds": [2, 5]
 }
 
 ###
-DELETE {{Thoth.API_HostAddress}}/api/roles/1
+DELETE {{Thoth.API_HostAddress}}/api/roles/4
 Content-Type: application/json
 
 

@@ -24,6 +24,22 @@ namespace Thoth.Tests.Requests {
 		}
 
 		[Fact]
+		public void Should_Validate_Without_Password() {
+			var request = new UpdateUserRequest {
+				Id = 1,
+				Name = UserName,
+				Email = Email,
+				OrganizationId = OrganizationId,
+				RoleIds = new List<int> { 1, 2 }
+			};
+
+			request.Validate();
+
+			Assert.True(request.IsValid);
+			Assert.Empty(request.Notifications);
+		}
+
+		[Fact]
 		public void Should_Return_Invalid_When_Id_Is_Zero() {
 			var request = new UpdateUserRequest {
 				Id = 0,
@@ -144,7 +160,7 @@ namespace Thoth.Tests.Requests {
 
 
 		[Fact]
-		public void Should_Return_Invalid_When_RoleIds_Is_Empty() {
+		public void Should_Return_Invalid_When_RoleIds_Are_Empty() {
 			var request = new UpdateUserRequest {
 				Id = 1,
 				Name = UserName,
