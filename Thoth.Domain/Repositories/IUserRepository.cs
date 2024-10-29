@@ -7,6 +7,8 @@ public interface IUserRepository {
 	public Task<List<UserView>> GetAllUsersViewsAsync();
 	public Task<User> GetByEmailAsync(string email);
 	public Task<User> GetByIdAsync(int id);
+	public Task<IList<string>> GetRolesAsync(User user);
+	public Task<IList<string>> GetPermissionsAsync(User user);
 	public Task AddAsync(User user, string password);
 	public Task AddToRolesAsync(User user, IList<int> rolesIds);
 	public Task RemoveUserRolesAsync(User user);

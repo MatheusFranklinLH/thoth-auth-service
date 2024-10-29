@@ -5,17 +5,16 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Thoth.Domain.Entities;
+using Thoth.Domain.Repositories;
 using Thoth.Domain.Requests;
 
 namespace Thoth.Domain.Services {
 	public class LoginService {
-		private readonly SignInManager<User> _signInManager;
-		private readonly UserManager<User> _userManager;
+		private readonly IUserRepository _userRepository;
 		private readonly IConfiguration _configuration;
 
-		public LoginService(SignInManager<User> signInManager, UserManager<User> userManager, IConfiguration configuration) {
-			_signInManager = signInManager;
-			_userManager = userManager;
+		public LoginService(IUserRepository userRepository, IConfiguration configuration) {
+			_userRepository = userRepository;
 			_configuration = configuration;
 		}
 
@@ -25,7 +24,7 @@ namespace Thoth.Domain.Services {
 				return (false, null);
 			}
 
-			var user = await _userManager.FindByEmailAsync(request.Email);
+			var user = await _userRepository.GetByEmailAsync(request.Email);
 			if (user == null) {
 				request.AddNotification("Login", "User not found");
 				return (false, null);
@@ -45,15 +44,15 @@ namespace Thoth.Domain.Services {
 
 		private async Task<string> GenerateJwtToken(User user) {
 			var key = Encoding.ASCII.GetBytes(_configuration["Jwt:Key"]);
-			var roles = await _userManager.GetRolesAsync(user);
-			var permissions = await _userManager.GetClaimsAsync(user);
+			var roles = await _userRepository.GetRolesAsync(user);
+			var permissions = await _userRepository.GetPermissionsAsync(user);
 
 			var claims = new[]
 			{
 				new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
 				new Claim(JwtRegisteredClaimNames.Email, user.Email),
 				new Claim("roles", string.Join(",", roles)),
-				new Claim("permissions", string.Join(",", permissions.Select(p => p.Value)))
+				new Claim("permissions", string.Join(",", permissions))
 			};
 
 			var tokenDescriptor = new SecurityTokenDescriptor {

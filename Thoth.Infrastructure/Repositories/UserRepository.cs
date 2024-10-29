@@ -5,17 +5,20 @@ using Thoth.Domain.Extensions;
 using Thoth.Domain.Interfaces;
 using Thoth.Domain.Repositories;
 using Thoth.Domain.Views;
+using Thoth.Infrastructure.Context;
 
 namespace Thoth.Infrastructure.Repositories {
 	public class UserRepository : IUserRepository {
 		private readonly UserManager<User> _userManager;
 		private readonly RoleManager<Role> _roleManager;
 		private readonly ILoggerService _logger;
+		private readonly ThothDbContext _context;
 
-		public UserRepository(UserManager<User> userManager, RoleManager<Role> roleManager, ILoggerService logger) {
+		public UserRepository(UserManager<User> userManager, RoleManager<Role> roleManager, ILoggerService logger, ThothDbContext context) {
 			_userManager = userManager;
 			_roleManager = roleManager;
 			_logger = logger;
+			_context = context;
 		}
 
 		public async Task AddAsync(User user, string password) {
@@ -57,6 +60,17 @@ namespace Thoth.Infrastructure.Repositories {
 				usersViews.Add(user.ToView([.. roles]));
 			}
 			return usersViews;
+		}
+
+		public async Task<IList<string>> GetRolesAsync(User user) {
+			return await _userManager.GetRolesAsync(user);
+		}
+
+		public async Task<IList<string>> GetPermissionsAsync(User user) {
+			List<string> roles = [.. (await _userManager.GetRolesAsync(user))];
+			return _context.Permissions
+				.Where(r => r.RolePermissions.Any(rp => roles.Contains(rp.Role.Name)))
+				.Select(p => p.Name).ToList();
 		}
 
 		public async Task<User> GetByIdAsync(int id) {

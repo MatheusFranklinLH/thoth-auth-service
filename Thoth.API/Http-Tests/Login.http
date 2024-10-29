@@ -1,0 +1,11 @@
+@Thoth.API_HostAddress = http://localhost:5142
+###
+POST {{Thoth.API_HostAddress}}/api/login
+Content-Type: application/json
+
+{
+  "email": "brucewayne@example.com",
+  "password": "NewPassword@123"
+}
+
+###
