@@ -40,7 +40,7 @@ The repository follows **Domain Driven Design (DDD)** principles, dividing the c
 
 1. **Clone the Repository**:
    ```bash
-   git clone https://github.com/yourusername/thoth-auth-service.git
+   git clone https://github.com/MatheusFranklinLH/thoth-auth-service.git
    cd thoth-auth-service
 
 2. **Run the Database Script**:
