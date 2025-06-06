@@ -26,10 +26,13 @@ namespace Thoth.Infrastructure.Repositories {
 				return;
 			await _transaction.RollbackAsync();
 		}
-		public async void Dispose() {
-			if (_transaction is null)
-				return;
-			await _transaction.DisposeAsync();
-		}
-	}
+                public void Dispose() {
+                        if (_transaction is null)
+                                return;
+
+                        // Use the synchronous Dispose method to avoid fire-and-forget async calls
+                        // within the Dispose pattern.
+                        _transaction.Dispose();
+                }
+        }
 }
